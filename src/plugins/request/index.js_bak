@@ -1,0 +1,94 @@
+// import store from '@/store';
+import axios from 'axios';
+import qs from 'qs';
+// import router from '@/router';
+import ViewUI from 'view-design';
+import { baseUrl } from '../../../baseUrl';
+// import util from '@/libs/util';
+// import Setting from '@/setting';
+
+// request 拦截器
+axios.interceptors.request.use(
+    config => {
+        if (localStorage.getItem('token')) {
+            config.headers.token = localStorage.getItem('token');
+        }
+        return config;
+    },
+    err => {
+        return Promise.reject(err);
+    }
+)
+
+axios.interceptors.response.use(
+    response => {
+        switch (response.data.error_code) {
+        case 100:
+            localStorage.removeItem('token');
+            ViewUI.Message.error('请重新登录');
+            break;
+        case 1000000001:
+            // window.open('http://www.sndtest.com/');
+            location.href = 'http://www.sndtest.com/'
+            break;
+        }
+        return response;
+    },
+    error => {
+        // 判断token是否过期
+        if (error.response) {
+            switch (error.response.status) {
+            case 500:
+                // 服务器内部错误
+                ViewUI.Message.error('接口请求出错，错误状态' + error.response.status);
+                break;
+            case 404:
+                // 接口不存在
+                break;
+            case 403:
+                // 没有权限访问
+                break;
+            case 401:
+                localStorage.removeItem('token');
+                break
+            default:
+                ViewUI.Message.error('接口请求出错，错误状态' + error.response.status);
+                break;
+            }
+        }
+    }
+);
+
+export const POST = (url, params) => {
+    return axios.post(baseUrl + `${url}?v=` + new Date().getTime(), qs.stringify(params), {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(res => res)
+}
+
+export const POST2 = (url, params) => {
+    return axios.post(baseUrl + `${url}?v=` + new Date().getTime(), params, {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).then(res => res)
+}
+
+export const FETCH = (url, params) => {
+    return axios.get(baseUrl + `${url}`, { params: params }).then(res => res)
+}
+
+export const PUT = (url, params) => {
+    return axios.put(`${url}`, params).then(res => res)
+}
+
+export const DELETE = (url, params) => {
+    return axios.delete(`${url}`, { params: params }).then(res => res)
+}
+
+export const PATCH = (url, params) => {
+    return axios.patch(`${url}`, params).then(res => res)
+}
