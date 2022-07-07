@@ -356,10 +356,10 @@
                 findPowerConfigure(params)
                     .then((res) => {
                         if (res.success) {
-                            this.NewtopValue = res.data.topPeakPrice
-                            this.topValue = res.data.peakPrice;
-                            this.centerValue = res.data.flatPrice;
-                            this.bottomValue = res.data.valleyPrice;
+                            this.NewtopValue = res.data.topPeakPrice // .substr(0, res.data.topPeakPrice.length - 1)
+                            this.topValue = res.data.peakPrice // .substr(0, res.data.peakPrice.length - 1);
+                            this.centerValue = res.data.flatPrice // .substr(0, res.data.flatPrice.length - 1);
+                            this.bottomValue = res.data.valleyPrice // .substr(0, res.data.valleyPrice.length - 1);
                             this.topTimeList = res.data.topPeakList.length
                             this.timeList = res.data.peakList.length;
                             this.centerTimeList = res.data.flatList.length;
@@ -420,6 +420,15 @@
                     this.$Message.error({
                         content: '电价不能为负数'
                     })
+                }
+                let reg = /^[0-9]+(.[0-9]{2})?$/
+                if (reg.test(val) === false) {
+                    this.$Message.error({
+                        content: '电价只能保留两位小数'
+
+                    })
+                    val = []
+                    return false
                 }
                 if (type === 'NewtopValue') {
                     this.NewtopValue = Math.abs(val)

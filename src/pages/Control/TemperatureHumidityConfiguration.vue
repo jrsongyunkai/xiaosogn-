@@ -141,7 +141,7 @@
                     :class="$i18n.locale === 'zh' ? 'normal-label' : ''"
                     >位置：</span
                   >
-                  <span>{{ temperatureHumList.build }}</span>
+                  <span>{{ temperatureHumList.build }}{{ temperatureHumList.unit }}{{ temperatureHumList.room }}</span>
                 </div>
                 <i
                   v-if="

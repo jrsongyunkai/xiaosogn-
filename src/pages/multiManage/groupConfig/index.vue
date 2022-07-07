@@ -396,6 +396,10 @@
       >
         <Row style="width: 100%">
           <Col :span="24">
+						<div style="display:flex">
+							<Input placeholder="请输入设备名称搜索" style="margin-right:10px" v-model="keyword"/>
+							<Button type="primary" @click="this.handleQueryBoxes">查询</Button>
+						</div>
             <h4 style="padding: 5px">选择设备 {{ deviceNum }}</h4>
             <!-- 先不做搜索 @on-change="getOpenchange" <Input search enter-button placeholder="请输入设备号搜索" @on-search="searchDevice" v-model="" /> -->
             <Collapse accordion>
@@ -604,7 +608,7 @@
         </Row>
       </Modal>
       <Modal title="添加线路" v-model="addDeviceLineFlag">
-        <Row>
+        <Row style="margin-top:10px">
           <Col :span="24">
             <Table :columns="columnsLineList" :data="DeviceLists">
               <template slot-scope="{ row }" slot="opretation">
@@ -648,16 +652,23 @@
             >
             <div slot="content">
               <Row :guttter="16">
-                <Col :span="13"
+                <Col :span="10"
                   ><Input
                     v-model="searchLoad"
                     placeholder="请输入负载名称搜索"
                   ></Input
                 ></Col>
-                <Col :span="8"> <Select v-model="typeLoad"  style="margin-left:10px">
-        <Option v-for="item in LoadList" :value="item.type" :key="item.name">{{ item.name }}</Option>
-          </Select></Col>
-		          <Col :span="3"> <Button type="primary">查询</Button></Col>
+                <Col :span="6">
+                  <Select v-model="typeLoad" clearable style="margin-left: 10px">
+                    <Option
+                      v-for="item in loadTypeList"
+                      :value="item.type"
+                      :key="item.name"
+                      >{{ item.name }}</Option
+                    >
+                  </Select></Col
+                >
+                <Col :span="3" > <Button type="primary" style="margin-left:20px" @click="checkLoadList">查询</Button></Col>
               </Row>
               <CheckboxGroup v-model="checkLoad">
                 <Checkbox
@@ -713,7 +724,7 @@
         data () {
             return {
                 typeLoad: '',
-                LoadList: [],
+                loadTypeList: [],
                 searchLoad: '',
                 visible: false,
                 getLoadValue: false,
@@ -862,7 +873,8 @@
                 },
                 loadPageNo: 1,
                 loadPageSize: 10,
-                loadtotal: ''
+                loadtotal: '',
+                keyword: ''
             };
         },
         methods: {
@@ -884,10 +896,13 @@
                             });
                         }
                     });
-
+                this.handleQueryBoxes()
+            },
+            handleQueryBoxes () {
                 // 所有设备列表
                 let param = {
-                    projectCode: this.$store.state.projectCode
+                    projectCode: this.$store.state.projectCode,
+                    key: this.keyword
                 };
                 getQueryBoxes(param)
                     .then((res) => {
@@ -965,17 +980,51 @@
                             });
                         }
                 });
-                queryTypeList().then(res => {
-                    if (res.success) {
-                        this.LoadList = res.data
-                    }
-                })
             },
-            // getLoadType(){
-            //  queryTypeList().then(res=>{
-            //           if(res.success){
-            //  })
-            // },
+            checkLoadList () {
+                // if (!this.searchLoad && Object.keys(this.typeLoad).length > 0) {
+                //     this.$Message.error({
+                //         content: '请输入搜索条件'
+                //     })
+                //     return false
+                // }
+                let params = {
+                    projectCode: this.$store.state.projectCode,
+                    type: this.typeLoad ? this.typeLoad : 0,
+                    nodeIds: this.nodeTableRow.id,
+                    keyword: this.searchLoad,
+                    pageNo: this.loadPageNo,
+                    pageSize: this.loadPageSize
+                }
+                queryList(params)
+                    .then((res) => {
+                        if (res.success) {
+                            this.loadList = res.datas;
+                            this.loadtotal = res.total;
+                            // console.log(this.loadList, '======res.datas');
+                        } else if (res.code === '-1') {
+                        } else {
+                            this.$Message.error({
+                                content: res.message
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        if (err) {
+                            this.$Message.error({
+                                content: '未知错误，请刷新重试'
+                            });
+                        }
+                });
+            },
+            getLoadType () {
+                queryTypeList().then((res) => {
+                    if (res.success) {
+                        this.loadTypeList = res.data;
+                        this.loadTypeList.unshift({ name: '全部', type: 0 })
+                    }
+                });
+            },
             allSelectList () {
                 if (
                     this.lineNodeList.length === this.lineCheckList.length &&
@@ -1073,7 +1122,7 @@
                         if (res.success) {
                             this.loadList = res.datas;
                             this.loadtotal = res.total;
-                            console.log(this.loadList, '======res.datas');
+                            // console.log(this.loadList, '======res.datas');
                         } else if (res.code === '-1') {
                         } else {
                             this.$Message.error({
@@ -2132,6 +2181,7 @@
         },
         created () {
             this.init();
+            this.getLoadType()
             this.getLoadlistValue();
         }
     };

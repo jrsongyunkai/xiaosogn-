@@ -959,7 +959,6 @@
                                     this.init();
                                 } else {
                                     this.reminder = true;
-                                    this.checkPower = false;
                                 }
                             } else {
                                 this.$Message.error({
@@ -1050,9 +1049,9 @@
                     this.powerData.xAxis = [];
                     this.powerData.series = [];
                     this.powerData.xAxis = time;
-                    this.powerData.yAxis.name = '次数（次）';
+                    this.powerData.yAxis.name = '电量（度）';
                     this.powerData.series[0] = {
-                        name: '维保次数',
+                        name: '电量（度）',
                         type: 'line',
                         data: main,
                         itemStyle: {

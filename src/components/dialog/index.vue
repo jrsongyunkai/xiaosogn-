@@ -65,8 +65,8 @@
         </div>
         <div class="right"></div>
       </div>
-      <div class="height">啊啊啊啊啊</div>
-      <div class="height" slot="footer">什么玩意欧建麟牛逼</div>
+      <!-- <div class="height">啊啊啊啊啊</div>
+      <div class="height" slot="footer">什么玩意欧建麟牛逼</div> -->
     </Modal>
   </div>
 </template>
